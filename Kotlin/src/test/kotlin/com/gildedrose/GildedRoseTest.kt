@@ -74,6 +74,25 @@ internal class GildedRoseTest {
     }
 
     @Test
+    fun `Aged Brie quality cannot improve beyond 50`() {
+        // Starting with aged Brie that has a quality of 49
+        val items = arrayOf(Item(
+            "Aged Brie",
+            sellIn = 100,
+            quality = 49
+        ))
+        val app = GildedRose(items)
+
+        // If it sits on the shelf for a week...
+        repeat(7) {
+            app.updateQuality()
+        }
+
+        // The quality will have increased by one to be six
+        app.items[0].quality shouldBeExactly 50
+    }
+
+    @Test
     fun `Backstage Passes increase in quality slightly when more than ten days out from the concert`() {
         // Starting with a backstage pass more than ten days left
         val items = arrayOf(Item(
