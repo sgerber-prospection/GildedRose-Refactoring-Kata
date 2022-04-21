@@ -14,6 +14,8 @@ repositories {
 dependencies {
 	implementation(kotlin("stdlib"))
 	testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+	testImplementation("io.kotest:kotest-assertions-core-jvm:5.1.0")
 }
 
 tasks.test {
