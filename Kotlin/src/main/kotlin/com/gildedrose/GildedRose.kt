@@ -54,7 +54,7 @@ class GildedRose(var items: Array<Item>) {
                             }
                         }
                     } else {
-                        item.quality = item.quality - item.quality
+                        item.quality = 0
                     }
                 } else {
                     if (item.quality < 50) {
