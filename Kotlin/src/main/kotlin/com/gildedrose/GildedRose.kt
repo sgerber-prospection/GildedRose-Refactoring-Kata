@@ -28,20 +28,14 @@ class GildedRose(var items: Array<Item>) {
     }
 
     private fun expireItem(item: Item, category: ItemCategory) {
-        if (category != AgedCheese) {
-            if (category != BackstagePass) {
-                if (item.quality > 0) {
-                    if (category != Legendary) {
-                        item.quality = item.quality - 1
-                    }
-                }
-            } else {
-                item.quality = 0
-            }
-        } else {
+        if (category == BackstagePass) {
+            item.quality = 0
+        } else if (category == AgedCheese) {
             if (item.quality < MAX_QUALITY) {
                 item.quality = item.quality + 1
             }
+        } else if (category != Legendary) {
+            item.quality = item.quality - 1
         }
     }
 
