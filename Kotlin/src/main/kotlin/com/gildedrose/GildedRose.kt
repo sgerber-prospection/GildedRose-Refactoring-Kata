@@ -12,8 +12,7 @@ class GildedRose(var items: Array<Item>) {
     }
 
     fun updateQuality() {
-        for (i in items.indices) {
-            val item = items[i]
+        for (item in items) {
             val category = deriveCategory(item)
             if (category != AgedCheese && category != BackstagePass) {
                 if (item.quality > 0) {
