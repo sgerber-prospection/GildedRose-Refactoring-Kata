@@ -2,6 +2,8 @@ package com.gildedrose
 
 import com.gildedrose.GildedRose.ItemCategory.*
 
+private const val MAX_QUALITY = 50
+
 class GildedRose(var items: Array<Item>) {
 
     enum class ItemCategory {
@@ -14,50 +16,63 @@ class GildedRose(var items: Array<Item>) {
     fun updateQuality() {
         for (item in items) {
             val category = deriveCategory(item)
-            if (category != AgedCheese && category != BackstagePass) {
+
+            reassessQuality(category, item)
+
+            ageItem(category, item)
+
+            if (item.sellIn < 0) {
+                expireItem(item, category)
+            }
+        }
+    }
+
+    private fun expireItem(item: Item, category: ItemCategory) {
+        if (category != AgedCheese) {
+            if (category != BackstagePass) {
                 if (item.quality > 0) {
                     if (category != Legendary) {
                         item.quality = item.quality - 1
                     }
                 }
             } else {
-                if (item.quality < 50) {
-                    item.quality = item.quality + 1
+                item.quality = 0
+            }
+        } else {
+            if (item.quality < MAX_QUALITY) {
+                item.quality = item.quality + 1
+            }
+        }
+    }
 
-                    if (category == BackstagePass) {
-                        if (item.sellIn < 11) {
-                            if (item.quality < 50) {
-                                item.quality = item.quality + 1
-                            }
-                        }
+    private fun ageItem(category: ItemCategory, item: Item) {
+        if (category != Legendary) {
+            item.sellIn = item.sellIn - 1
+        }
+    }
 
-                        if (item.sellIn < 6) {
-                            if (item.quality < 50) {
-                                item.quality = item.quality + 1
-                            }
-                        }
-                    }
+    private fun reassessQuality(category: ItemCategory, item: Item) {
+        if (category != AgedCheese && category != BackstagePass) {
+            if (item.quality > 0) {
+                if (category != Legendary) {
+                    item.quality = item.quality - 1
                 }
             }
+        } else {
+            if (item.quality < MAX_QUALITY) {
+                item.quality = item.quality + 1
 
-            if (category != Legendary) {
-                item.sellIn = item.sellIn - 1
-            }
-
-            if (item.sellIn < 0) {
-                if (category != AgedCheese) {
-                    if (category != BackstagePass) {
-                        if (item.quality > 0) {
-                            if (category != Legendary) {
-                                item.quality = item.quality - 1
-                            }
+                if (category == BackstagePass) {
+                    if (item.sellIn < 11) {
+                        if (item.quality < MAX_QUALITY) {
+                            item.quality = item.quality + 1
                         }
-                    } else {
-                        item.quality = 0
                     }
-                } else {
-                    if (item.quality < 50) {
-                        item.quality = item.quality + 1
+
+                    if (item.sellIn < 6) {
+                        if (item.quality < MAX_QUALITY) {
+                            item.quality = item.quality + 1
+                        }
                     }
                 }
             }

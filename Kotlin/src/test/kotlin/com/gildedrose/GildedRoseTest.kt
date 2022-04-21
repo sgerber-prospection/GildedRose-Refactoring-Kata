@@ -87,7 +87,7 @@ internal class GildedRoseTest {
         repeat(7) {
             app.updateQuality()
         }
-        
+
         // The quality will cap out at 50
         app.items[0].quality shouldBeExactly 50
     }
