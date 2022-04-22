@@ -64,6 +64,8 @@ class GildedRose(var items: Array<Item>) {
             return BackstagePass
         } else if (item.name.startsWith("Sulfuras")) {
             return Legendary
+        } else if (item.name.startsWith("Conjured")) {
+            return Conjured
         } else {
             return Unremarkable
         }

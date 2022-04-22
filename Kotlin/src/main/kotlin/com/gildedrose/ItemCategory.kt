@@ -23,6 +23,15 @@ enum class ItemCategory(
         )
     ),
 
+    // Conjured items depreciate, but twice as fast as normal items
+    Conjured(
+        Depreciates,
+        adjustmentOverrides = listOf(
+            QualityAdjustment(1..Int.MAX_VALUE, 2),
+            QualityAdjustment(Int.MIN_VALUE .. 0, 4)
+        )
+    ),
+
     // Legendary items do not appreciate or depreciate or change in quality
     Legendary(
         Eternal,

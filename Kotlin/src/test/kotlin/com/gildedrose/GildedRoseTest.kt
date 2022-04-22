@@ -192,6 +192,32 @@ internal class GildedRoseTest {
         // Quality never changes, because it is a legendary item
         app.items[0].quality shouldBeExactly initialQuality
     }
+
+    @Test
+    fun `Conjured Items degrade in quality twice as fast as normal items before expiry`() {
+        // Given an unexpired item with a quality of ten
+        val items = arrayOf(Item("Conjured Mana Cake", 1, 10))
+        val app = GildedRose(items)
+
+        // When time passes
+        app.updateQuality()
+
+        // Quality drops by two (twice as fast as normal items) to eight.
+        app.items[0].quality shouldBeExactly 8
+    }
+
+    @Test
+    fun `Conjured Items degrade in quality twice as fast as normal items after expiry`() {
+        // Given an unexpired item with a quality of ten
+        val items = arrayOf(Item("Conjured Mana Cake", 0, 10))
+        val app = GildedRose(items)
+
+        // When time passes
+        app.updateQuality()
+
+        // Quality drops by four (twice as fast as normal expired items) to six.
+        app.items[0].quality shouldBeExactly 6
+    }
 }
 
 
