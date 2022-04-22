@@ -1,16 +1,19 @@
 package com.gildedrose
 
-import com.gildedrose.GildedRose.ItemCategory.*
+import com.gildedrose.AssetClass.Appreciates
+import com.gildedrose.AssetClass.Depreciates
+import com.gildedrose.ItemCategory.*
 
 private const val MAX_QUALITY = 50
+private const val MIN_QUALITY = 0
 
 class GildedRose(var items: Array<Item>) {
 
-    enum class ItemCategory {
-        BackstagePass,
-        AgedCheese,
-        Legendary,
-        Unremarkable
+    companion object {
+        val DEFAULT_ADJUSTMENTS = listOf(
+            QualityAdjustment(1..Int.MAX_VALUE, 1),
+            QualityAdjustment(Int.MIN_VALUE..0, 2)
+        )
     }
 
     fun updateQuality() {
@@ -21,21 +24,13 @@ class GildedRose(var items: Array<Item>) {
 
             ageItem(category, item)
 
-            if (item.sellIn < 0) {
-                expireItem(item, category)
-            }
+            expireIfNecessary(item, category)
         }
     }
 
-    private fun expireItem(item: Item, category: ItemCategory) {
-        if (category == BackstagePass) {
+    private fun expireIfNecessary(item: Item, category: ItemCategory) {
+        if (category.expires && item.sellIn < 0) {
             item.quality = 0
-        } else if (category == AgedCheese) {
-            if (item.quality < MAX_QUALITY) {
-                item.quality = item.quality + 1
-            }
-        } else if (category != Legendary) {
-            item.quality = item.quality - 1
         }
     }
 
@@ -46,31 +41,20 @@ class GildedRose(var items: Array<Item>) {
     }
 
     private fun reassessQuality(category: ItemCategory, item: Item) {
-        if (category != AgedCheese && category != BackstagePass) {
-            if (item.quality > 0) {
-                if (category != Legendary) {
-                    item.quality = item.quality - 1
-                }
+        val qualityAdjustment = category.calculateQualityAdjustmentBasedOnTimeToSell(item.sellIn)
+        val newQuality = when (category.assetClass) {
+            Appreciates -> {
+                (item.quality + qualityAdjustment).coerceAtMost(MAX_QUALITY)
             }
-        } else {
-            if (item.quality < MAX_QUALITY) {
-                item.quality = item.quality + 1
-
-                if (category == BackstagePass) {
-                    if (item.sellIn < 11) {
-                        if (item.quality < MAX_QUALITY) {
-                            item.quality = item.quality + 1
-                        }
-                    }
-
-                    if (item.sellIn < 6) {
-                        if (item.quality < MAX_QUALITY) {
-                            item.quality = item.quality + 1
-                        }
-                    }
-                }
+            Depreciates -> {
+                (item.quality - qualityAdjustment).coerceAtLeast(MIN_QUALITY)
+            }
+            else -> {
+                item.quality
             }
         }
+
+        item.quality = newQuality
     }
 
     private fun deriveCategory(item: Item): ItemCategory {
@@ -83,6 +67,22 @@ class GildedRose(var items: Array<Item>) {
         } else {
             return Unremarkable
         }
+    }
+
+    private fun ItemCategory.calculateQualityAdjustmentBasedOnTimeToSell(daysRemaining: Int): Int {
+        for (override in adjustmentOverrides) {
+            if (daysRemaining in override.daysUntilExpiryInclusive) {
+                return override.qualityAdjustmentStep
+            }
+        }
+
+        for (default in DEFAULT_ADJUSTMENTS) {
+            if (daysRemaining in default.daysUntilExpiryInclusive) {
+                return default.qualityAdjustmentStep
+            }
+        }
+
+        error("Could not find a range that corresponded to the supplied days. Check DEFAULT_ADJUSTMENTS to ensure entire int range is covered")
     }
 }
 
